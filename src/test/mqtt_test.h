@@ -24,9 +24,33 @@ std::unique_ptr<mqtt::MqttSettings> setup(){
 	settings->host = "localhost";
 	settings->port = 1883;
 	settings->keepalive = 60;
+
+	// Create RGB Accessory
+	Accessory rgb;
+	rgb.type = Type::RGB;
+	rgb.name = "RGB Light";
+	rgb.base = "kitchen/rgb/";
+	rgb.topics["light"].get = "set"; // Home assistant will set and we will get it.
+	rgb.topics["light"].set = "get"; // Home assistant will get and we will send it.
+	rgb.topics["brightness"].get = "set"; // Home assistant will set and we will get it.
+	rgb.topics["brightness"].set = "get"; // Home assistant will get and we will send it.
+	rgb.topics["rgb"].get = "set"; // Home assistant will set and we will get it.
+	rgb.topics["rgb"].set = "get"; // Home assistant will get and we will send it.
+	settings->accessories.emplace_back(rgb);
+
+	// Create ordinary lightning without RGB.
+	Accessory lamp;
+	lamp.type = Type::LED;
+	lamp.name = "Led light";
+	lamp.base = "kitchen/white/";
+	lamp.topics["light"].get = "set"; // Home assistant will set and we will get it.
+	lamp.topics["light"].set = "get"; // Home assistant will get and we will send it.
+	lamp.topics["brightness"].get = "set"; // Home assistant will set and we will get it.
+	lamp.topics["brightness"].set = "get"; // Home assistant will get and we will send it.
+
 	return settings;
 }
-TEST(Mqtt, test) {
+TEST(Mqtt, testIntialSettings) {
 	mqtt::Mqtt mqtt(setup());
 
 	// Get a const of settings
@@ -48,6 +72,12 @@ TEST(Mqtt, test) {
 	mqtt.mqtt_com.on_disconnect(0);
 	EXPECT_EQ(mqtt.getMqttStatus(), mqtt::Status::Disconnected);
 
+	EXPECT_NE(settingsCopy->recv.get(), nullptr);
+	EXPECT_NE(settingsCopy->send.get(), nullptr);
+}
+TEST(Mqtt, testThreadStartStop) {
+	mqtt::Mqtt mqtt(setup());
+
 	// Start mqtt instance
 	mqtt.start();
 	sleep(1); // Give the Mqtt a change to start
@@ -63,6 +93,22 @@ TEST(Mqtt, test) {
 	sleep(1); // Give the Mqtt a change to start
 	EXPECT_EQ(mqtt.getRunningStatus(), mqtt::Status::Runnning);
 
-
+	// Try to stop it
+	mqtt.stop();
+	EXPECT_EQ(mqtt.getRunningStatus(), mqtt::Status::Stopping);
+	sleep(1);
+	EXPECT_EQ(mqtt.getRunningStatus(), mqtt::Status::Stopped);
 };
+
+TEST(Mqtt, testMqttSendMessage) {
+	std::unique_ptr<mqtt::MqttSettings> settings = setup();
+	std::shared_ptr<MessagePkg::Queue<MessagePkg::Message>> sendQueue = settings->send;
+	mqtt::Mqtt mqtt(settings);
+	mqtt.start();
+
+	sendQueue->push(MessagePkg::Message{"kitchen/rgb/", "get", "255,255,255"});
+
+	mqtt.stop();
+	sleep(1); // Need to make the thread close itself.
+}
 }

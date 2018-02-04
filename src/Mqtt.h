@@ -15,7 +15,7 @@
 
 
 namespace mqtt  {
-
+static constexpr int threadDelay = 10; // ms
 
 class Mqtt {
 public:
@@ -34,6 +34,7 @@ public:
 	void TestChangeStatus(Status newStatus);
 #endif
 	void run();
+	void initiateMqttConnectionAndSubscriptions();
 	std::unique_ptr<MqttSettings> mqttSettings;
 	std::unique_ptr<std::thread> runningThread;
 	Status runningStatus;

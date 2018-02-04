@@ -5,24 +5,14 @@
 #include <iostream>
 #include <assert.h>
 #include <exception>
+#include <memory>
 
-Mqtt_com::Mqtt_com(const char * id, const char * host, int port, mqtt::Status* status) :
-id(id),
-host(host),
-port(port),
-keepalive(60),
-status(status)
+Mqtt_com::Mqtt_com(std::unique_ptr<mqtt::MqttSettings>& mqttSettings):
+settings(mqttSettings.get())
 {
-	assert(status);
-#ifndef DEBUG
-	mosqpp::mosquittopp(this->id);
-	mosqpp::lib_init();        // Mandatory initialization for mosquitto library
-	connect_async(host,     // non blocking connection to broker request
-			port,
-			keepalive);
-	loop_start();            // Start thread managing connection / publish / subscribe
-#endif
-};
+
+}
+
 
 Mqtt_com::~Mqtt_com()
 {
@@ -32,7 +22,7 @@ Mqtt_com::~Mqtt_com()
 #endif
 }
 
-bool Mqtt_com::send_message(const  char * message)
+bool Mqtt_com::send_message(const char* topic, const  char * message)
 {
 	// Send message - depending on QoS, mosquitto lib managed re-submission this the thread
 	//
@@ -44,13 +34,25 @@ bool Mqtt_com::send_message(const  char * message)
 	// * retain (boolean) - indicates if message is retained on broker or not
 	// Should return MOSQ_ERR_SUCCESS
 #ifndef DEBUG
-
-//	int ret = mosquittopp::publish(NULL,this->topic,strlen(_message),_message,1,false);
-//	return ( ret == MOSQ_ERR_SUCCESS );
+	int ret = mosquittopp::publish(NULL,topic,strlen(message), message,1,false);
+	return ( ret == MOSQ_ERR_SUCCESS );
 #else
 	return true;
 #endif
 
+}
+void Mqtt_com::connect(){
+
+
+#ifndef DEBUG
+	mosqpp::mosquittopp(settings->id.c_str());
+	mosqpp::lib_init();        // Mandatory initialization for mosquitto library
+	connect_async(settings->host.c_str(),     // non blocking blocking connection to broker request
+			settings->port,
+			settings->keepalive);
+	loop_start();            // Start thread managing connection / publish / subscribe
+#endif
+	settings->status = mqtt::Status::Connnecting;
 }
 
 void Mqtt_com::disconnect(){
@@ -75,7 +77,7 @@ void Mqtt_com::subscribe(const char* subject)
 void Mqtt_com::on_disconnect(int rc)
 {
 	std::cout << ">> Mqtt_com - disconnection(" << rc << ")" << std::endl;
-	*status = mqtt::Status::Disconnected;
+	settings->status = mqtt::Status::Disconnected;
 
 	// Reconnect?! if *status...
 	// reconnect_async();
@@ -87,10 +89,10 @@ void Mqtt_com::on_connect(int rc)
 	if ( rc == 0 )
 	{
 		std::cout << ">> Mqtt_com - connected with server" << std::endl;
-		*status = mqtt::Status::Connected;
+		settings->status = mqtt::Status::Connected;
 	} else {
 		std::cout << ">> Mqtt_com - Impossible to connect with server(" << rc << ")" << std::endl;
-		*status = mqtt::Status::Disconnected;
+		settings->status = mqtt::Status::Disconnected;
 	}
 }
 

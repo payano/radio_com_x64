@@ -7,6 +7,7 @@
 #include <string>
 #include <vector>
 #include "MessagePkg.h"
+#include <map>
 
 #pragma once
 
@@ -26,14 +27,14 @@ enum Status {
 	Stopping = 5
 };
 struct Topic{
-	Status status;
 	std::string get;
 	std::string set;
 };
 struct Accessory{
 	Type type;
 	std::string name;
-	std::vector<Topic> topics;
+	std::string base;
+	std::map<std::string, Topic> topics; // basestring + topic
 };
 
 struct MqttSettings{

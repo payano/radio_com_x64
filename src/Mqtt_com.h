@@ -11,10 +11,11 @@
 class Mqtt_com: public mosqpp::mosquittopp
 {
 public:
-	Mqtt_com(const char *id, const char *host, int port, mqtt::Status* status);
+	Mqtt_com(std::unique_ptr<mqtt::MqttSettings>& mqttSettings);
 	~Mqtt_com();
 	void subscribe(const char* subject);
-	bool send_message(const char* message);
+	bool send_message(const char* topic, const  char * message);
+	void connect();
 	void disconnect();
 private:
 #ifdef DEBUG
@@ -27,11 +28,7 @@ public:
 	void on_subscribe(int mid, int qos_count, const int *granted_qos);
 	void on_message(const struct mosquitto_message *message);
 
-	const char* id;
-	const char* host;
-	int port;
-	int keepalive;
-	mqtt::Status* status;
 	// const char    *     topic;
+	mqtt::MqttSettings* settings;
 
 };
