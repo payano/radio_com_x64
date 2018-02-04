@@ -29,7 +29,7 @@ std::unique_ptr<mqtt::MqttSettings> setup(){
 TEST(Mqtt, test) {
 	mqtt::Mqtt mqtt(setup());
 
-	// Get a const copy of settings
+	// Get a const of settings
 	auto& settingsCopy = mqtt.getSettings();
 
 	EXPECT_EQ(settingsCopy->id, "0");
