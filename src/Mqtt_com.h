@@ -14,7 +14,7 @@ public:
 	Mqtt_com(std::unique_ptr<mqtt::MqttSettings>& mqttSettings);
 	~Mqtt_com();
 	void subscribe(const char* subject);
-	bool send_message(const char* topic, const  char * message);
+	bool sendMessage(const char* topic, const  char * message);
 	void connect();
 	void disconnect();
 private:
@@ -27,6 +27,8 @@ public:
 	void on_publish(int mid);
 	void on_subscribe(int mid, int qos_count, const int *granted_qos);
 	void on_message(const struct mosquitto_message *message);
+	void unsubscribe(const char *sub);
+
 
 	// const char    *     topic;
 	mqtt::MqttSettings* settings;

@@ -69,7 +69,7 @@ class Queue
 };
 
 struct Message {
-	std::string basename;
+	std::string base;
 	std::string topic;
 	std::string value;
 

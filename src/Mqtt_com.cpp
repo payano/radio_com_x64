@@ -22,7 +22,7 @@ Mqtt_com::~Mqtt_com()
 #endif
 }
 
-bool Mqtt_com::send_message(const char* topic, const  char * message)
+bool Mqtt_com::sendMessage(const char* topic, const  char * message)
 {
 	// Send message - depending on QoS, mosquitto lib managed re-submission this the thread
 	//
@@ -42,8 +42,6 @@ bool Mqtt_com::send_message(const char* topic, const  char * message)
 
 }
 void Mqtt_com::connect(){
-
-
 #ifndef DEBUG
 	mosqpp::mosquittopp(settings->id.c_str());
 	mosqpp::lib_init();        // Mandatory initialization for mosquitto library
@@ -59,6 +57,7 @@ void Mqtt_com::disconnect(){
 #ifndef DEBUG
 	mosquittopp::disconnect();
 #endif
+
 }
 
 
@@ -110,6 +109,13 @@ void Mqtt_com::on_message(const struct mosquitto_message *message)
 	std::cout <<
 			"Topic: " << message->topic << ", payload: " <<
 			reinterpret_cast<char*>(message->payload) << std::endl;
+}
+
+void Mqtt_com::unsubscribe(const char *sub){
+#ifndef DEBUG
+	unsubscribe(NULL, sub);
+
+#endif
 }
 
 void Mqtt_com::on_subscribe(int mid, int qos_count, const int *granted_qos)

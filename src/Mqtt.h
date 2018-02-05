@@ -34,7 +34,7 @@ public:
 	void TestChangeStatus(Status newStatus);
 #endif
 	void run();
-	void initiateMqttConnectionAndSubscriptions();
+	void handleSubscriptions(bool subscribe=true);
 	std::unique_ptr<MqttSettings> mqttSettings;
 	std::unique_ptr<std::thread> runningThread;
 	Status runningStatus;

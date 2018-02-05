@@ -100,15 +100,43 @@ TEST(Mqtt, testThreadStartStop) {
 	EXPECT_EQ(mqtt.getRunningStatus(), mqtt::Status::Stopped);
 };
 
+TEST(Mqtt, testMqttRecvMessage) {
+	std::unique_ptr<mqtt::MqttSettings> settings = setup();
+	std::shared_ptr<MessagePkg::Queue<MessagePkg::Message>> recvQueue = settings->recv;
+	mqtt::Mqtt mqtt(settings);
+	mqtt.start();
+	sleep(1); // Give the Mqtt a change to start
+
+	recvQueue->push(MessagePkg::Message{"kitchen/rgb/", "get", "255,255,255"});
+	EXPECT_EQ(recvQueue->size(),1u);
+	sleep(1);
+	EXPECT_EQ(recvQueue->size(),0u);
+	mqtt.stop();
+	while(mqtt.runningStatus != mqtt::Status::Stopped){std::this_thread::sleep_for(std::chrono::milliseconds(10));}
+}
+
 TEST(Mqtt, testMqttSendMessage) {
 	std::unique_ptr<mqtt::MqttSettings> settings = setup();
 	std::shared_ptr<MessagePkg::Queue<MessagePkg::Message>> sendQueue = settings->send;
 	mqtt::Mqtt mqtt(settings);
 	mqtt.start();
+	sleep(1); // Give the Mqtt a change to start
 
-	sendQueue->push(MessagePkg::Message{"kitchen/rgb/", "get", "255,255,255"});
-
+	sendQueue->push(MessagePkg::Message{"kitchen/rgb/", "set", "255,255,255"});
+	EXPECT_EQ(sendQueue->size(),1u);
+	sleep(1);
 	mqtt.stop();
-	sleep(1); // Need to make the thread close itself.
+	while(mqtt.runningStatus != mqtt::Status::Stopped){std::this_thread::sleep_for(std::chrono::milliseconds(10));}
 }
+TEST(Mqtt, testMqttDisconnect) {
+
+}
+TEST(Mqtt, testMqttServerGone) {
+
+}
+TEST(Mqtt, testMqttSendMessageFailed) {
+
+}
+
+
 }
