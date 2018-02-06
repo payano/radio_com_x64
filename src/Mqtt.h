@@ -15,7 +15,8 @@
 
 
 namespace mqtt  {
-static constexpr int threadDelay = 10; // ms
+static constexpr unsigned int THREADDELAY = 10; // ms
+static constexpr unsigned int RECONNECT_TIMEOUT = 5; // seconds
 
 class Mqtt {
 public:

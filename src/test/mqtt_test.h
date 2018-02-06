@@ -24,6 +24,8 @@ std::unique_ptr<mqtt::MqttSettings> setup(){
 	settings->host = "localhost";
 	settings->port = 1883;
 	settings->keepalive = 60;
+	settings->status = Status::Disconnected;
+
 
 	// Create RGB Accessory
 	Accessory rgb;
@@ -107,6 +109,9 @@ TEST(Mqtt, testMqttRecvMessage) {
 	mqtt.start();
 	sleep(1); // Give the Mqtt a change to start
 
+	// Fake a connection
+	mqtt.mqtt_com.on_connect(0);
+
 	recvQueue->push(MessagePkg::Message{"kitchen/rgb/", "get", "255,255,255"});
 	EXPECT_EQ(recvQueue->size(),1u);
 	sleep(1);
@@ -129,13 +134,40 @@ TEST(Mqtt, testMqttSendMessage) {
 	while(mqtt.runningStatus != mqtt::Status::Stopped){std::this_thread::sleep_for(std::chrono::milliseconds(10));}
 }
 TEST(Mqtt, testMqttDisconnect) {
+	std::unique_ptr<mqtt::MqttSettings> settings = setup();
+	std::shared_ptr<MessagePkg::Queue<MessagePkg::Message>> recvQueue = settings->recv;
+	mqtt::Mqtt mqtt(settings);
+	recvQueue->push(MessagePkg::Message{"kitchen/rgb/", "get", "255,255,255"});
 
-}
-TEST(Mqtt, testMqttServerGone) {
+	mqtt.start();
+	sleep(1); // Give the Mqtt a change to start
+	EXPECT_EQ(mqtt.getMqttStatus(),mqtt::Status::Connnecting);
 
-}
-TEST(Mqtt, testMqttSendMessageFailed) {
+	// Disconnect event.
+	mqtt.mqtt_com.on_disconnect(0);
+	EXPECT_EQ(mqtt.getMqttStatus(),mqtt::Status::Disconnected);
+	sleep(1);
+	// not a successful connect
+	mqtt.mqtt_com.on_connect(1);
+	sleep(1);
+	EXPECT_EQ(mqtt.getMqttStatus(),mqtt::Status::Disconnected);
+	sleep(5);
 
+	mqtt.mqtt_com.on_connect(1);
+	sleep(1);
+	EXPECT_EQ(mqtt.getMqttStatus(),mqtt::Status::Disconnected);
+	sleep(5);
+	EXPECT_EQ(mqtt.getMqttStatus(),mqtt::Status::Connnecting);
+
+	// Connect
+	mqtt.mqtt_com.on_connect(1);
+	mqtt.mqtt_com.on_connect(0);
+	sleep(1);
+	EXPECT_EQ(mqtt.getMqttStatus(),mqtt::Status::Connected);
+
+	mqtt.stop();
+
+	while(mqtt.runningStatus != mqtt::Status::Stopped){std::this_thread::sleep_for(std::chrono::milliseconds(10));}
 }
 
 

@@ -8,6 +8,7 @@
 #include "Mqtt.h"
 #include <iostream>
 #include <exception>
+#include <sys/time.h>
 
 namespace mqtt {
 
@@ -55,10 +56,24 @@ void Mqtt::run()
 	handleSubscriptions();
 
 	unsigned int lastRecvQueueLen = 0u;
+	__time_t nextTimeout = 0u;
 
 	while(runningStatus == Status::Runnning)
 	{
-		if(!mqttSettings->recv->isEmpty())
+		if(mqttSettings->status == Status::Disconnected)
+		{
+			// Disconnect, need to reconnect.
+			timeval tv;
+			gettimeofday(&tv,NULL);
+			if(tv.tv_sec > nextTimeout)
+			{
+				std::cout << "MQTT: disconnected from server, reconnecting.\n";
+				nextTimeout = tv.tv_sec + RECONNECT_TIMEOUT;
+				mqtt_com.connect();
+			}
+		}
+
+		if(!mqttSettings->recv->isEmpty() && mqttSettings->status == Status::Connected)
 		{
 			// These are going to MQTT Broker (received from radio)
 			MessagePkg::Message send;
@@ -74,7 +89,7 @@ void Mqtt::run()
 		}
 		lastRecvQueueLen = mqttSettings->send->size();
 
-		std::this_thread::sleep_for(std::chrono::milliseconds(threadDelay));
+		std::this_thread::sleep_for(std::chrono::milliseconds(THREADDELAY));
 	}
 	std::cout << "Closing thread Mqtt.\n";
 
