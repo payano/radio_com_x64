@@ -6,3 +6,12 @@
  */
 
 #pragma once
+
+#include "gtest/gtest.h"
+#include <memory>
+
+
+namespace radio_test {
+
+
+}
