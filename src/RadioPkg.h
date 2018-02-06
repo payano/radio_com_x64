@@ -18,6 +18,7 @@ namespace radio {
 struct node {
 	sockaddr_ieee802154 yo;
 	common::Status connected;
+	// https://courses.soe.ucsc.edu/courses/cmpe156/Spring14/01/attachments/25556
 };
 
 struct Radio{
