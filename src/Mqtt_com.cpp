@@ -113,7 +113,7 @@ void Mqtt_com::on_message(const struct mosquitto_message *message)
 
 void Mqtt_com::unsubscribe(const char *sub){
 #ifndef DEBUG
-	unsubscribe(NULL, sub);
+	mosquittopp::unsubscribe(NULL, sub);
 
 #endif
 }
