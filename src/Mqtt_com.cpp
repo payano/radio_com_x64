@@ -50,7 +50,7 @@ void Mqtt_com::connect(){
 			settings->keepalive);
 	loop_start();            // Start thread managing connection / publish / subscribe
 #endif
-	settings->status = mqtt::Status::Connnecting;
+	settings->status = common::Status::Connnecting;
 }
 
 void Mqtt_com::disconnect(){
@@ -76,7 +76,7 @@ void Mqtt_com::subscribe(const char* subject)
 void Mqtt_com::on_disconnect(int rc)
 {
 	std::cout << ">> Mqtt_com - disconnection(" << rc << ")" << std::endl;
-	settings->status = mqtt::Status::Disconnected;
+	settings->status = common::Status::Disconnected;
 
 	// Reconnect?! if *status...
 	// reconnect_async();
@@ -88,10 +88,10 @@ void Mqtt_com::on_connect(int rc)
 	if ( rc == 0 )
 	{
 		std::cout << ">> Mqtt_com - connected with server" << std::endl;
-		settings->status = mqtt::Status::Connected;
+		settings->status = common::Status::Connected;
 	} else {
 		std::cout << ">> Mqtt_com - Impossible to connect with server(" << rc << ")" << std::endl;
-		settings->status = mqtt::Status::Disconnected;
+		settings->status = common::Status::Disconnected;
 	}
 }
 

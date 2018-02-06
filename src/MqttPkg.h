@@ -8,6 +8,7 @@
 #include <vector>
 #include "MessagePkg.h"
 #include <map>
+#include "CommonPkg.h"
 
 #pragma once
 
@@ -17,14 +18,6 @@ enum Type {
 	LED = 0,
 	RGB = 1,
 	BUTTON = 2
-};
-enum Status {
-	Disconnected = 0,
-	Connnecting = 1,
-	Connected = 2,
-	Stopped = 3,
-	Runnning = 4,
-	Stopping = 5
 };
 struct Topic{
 	std::string get;
@@ -42,7 +35,7 @@ struct MqttSettings{
 	std::string host;
 	int port;
 	int keepalive;
-	Status status;
+	common::Status status;
 	std::vector<Accessory> accessories;
 	std::shared_ptr<MessagePkg::Queue<MessagePkg::Message>> recv;
 	std::shared_ptr<MessagePkg::Queue<MessagePkg::Message>> send;

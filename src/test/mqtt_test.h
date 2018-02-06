@@ -11,11 +11,14 @@
 #include <memory>
 #include "../Mqtt.h"
 #include "../MqttPkg.h"
+#include "../CommonPkg.h"
+
 namespace MqttTest {
 
 std::unique_ptr<mqtt::MqttSettings> setup(){
 	using namespace MessagePkg;
 	using namespace mqtt;
+	using namespace common;
 
 	std::unique_ptr<MqttSettings> settings = std::make_unique<MqttSettings>();
 	settings->recv = std::make_shared<MessagePkg::Queue<MessagePkg::Message>>();
@@ -53,6 +56,7 @@ std::unique_ptr<mqtt::MqttSettings> setup(){
 	return settings;
 }
 TEST(Mqtt, testIntialSettings) {
+	using namespace common;
 	mqtt::Mqtt mqtt(setup());
 
 	// Get a const of settings
@@ -65,44 +69,48 @@ TEST(Mqtt, testIntialSettings) {
 	EXPECT_EQ(settingsCopy->recv->size(),0u);
 	EXPECT_EQ(settingsCopy->send->size(),0u);
 
-	EXPECT_EQ(mqtt.getMqttStatus(), mqtt::Status::Disconnected);
+	EXPECT_EQ(mqtt.getMqttStatus(), Status::Disconnected);
 
 	// Set new status
 	mqtt.mqtt_com.on_connect(0);
-	EXPECT_EQ(mqtt.getMqttStatus(), mqtt::Status::Connected);
+	EXPECT_EQ(mqtt.getMqttStatus(), Status::Connected);
 
 	mqtt.mqtt_com.on_disconnect(0);
-	EXPECT_EQ(mqtt.getMqttStatus(), mqtt::Status::Disconnected);
+	EXPECT_EQ(mqtt.getMqttStatus(), Status::Disconnected);
 
 	EXPECT_NE(settingsCopy->recv.get(), nullptr);
 	EXPECT_NE(settingsCopy->send.get(), nullptr);
 }
 TEST(Mqtt, testThreadStartStop) {
+	using namespace common;
+
 	mqtt::Mqtt mqtt(setup());
 
 	// Start mqtt instance
 	mqtt.start();
 	sleep(1); // Give the Mqtt a change to start
-	EXPECT_EQ(mqtt.getRunningStatus(), mqtt::Status::Runnning);
+	EXPECT_EQ(mqtt.getRunningStatus(), Status::Runnning);
 
 	// Try to stop it
 	mqtt.stop();
-	EXPECT_EQ(mqtt.getRunningStatus(), mqtt::Status::Stopping);
+	EXPECT_EQ(mqtt.getRunningStatus(), Status::Stopping);
 	sleep(1);
-	EXPECT_EQ(mqtt.getRunningStatus(), mqtt::Status::Stopped);
+	EXPECT_EQ(mqtt.getRunningStatus(), Status::Stopped);
 
 	mqtt.start();
 	sleep(1); // Give the Mqtt a change to start
-	EXPECT_EQ(mqtt.getRunningStatus(), mqtt::Status::Runnning);
+	EXPECT_EQ(mqtt.getRunningStatus(), Status::Runnning);
 
 	// Try to stop it
 	mqtt.stop();
-	EXPECT_EQ(mqtt.getRunningStatus(), mqtt::Status::Stopping);
+	EXPECT_EQ(mqtt.getRunningStatus(), Status::Stopping);
 	sleep(1);
-	EXPECT_EQ(mqtt.getRunningStatus(), mqtt::Status::Stopped);
+	EXPECT_EQ(mqtt.getRunningStatus(), Status::Stopped);
 };
 
 TEST(Mqtt, testMqttRecvMessage) {
+	using namespace common;
+
 	std::unique_ptr<mqtt::MqttSettings> settings = setup();
 	std::shared_ptr<MessagePkg::Queue<MessagePkg::Message>> recvQueue = settings->recv;
 	mqtt::Mqtt mqtt(settings);
@@ -117,10 +125,12 @@ TEST(Mqtt, testMqttRecvMessage) {
 	sleep(1);
 	EXPECT_EQ(recvQueue->size(),0u);
 	mqtt.stop();
-	while(mqtt.runningStatus != mqtt::Status::Stopped){std::this_thread::sleep_for(std::chrono::milliseconds(10));}
+	while(mqtt.runningStatus != Status::Stopped){std::this_thread::sleep_for(std::chrono::milliseconds(10));}
 }
 
 TEST(Mqtt, testMqttSendMessage) {
+	using namespace common;
+
 	std::unique_ptr<mqtt::MqttSettings> settings = setup();
 	std::shared_ptr<MessagePkg::Queue<MessagePkg::Message>> sendQueue = settings->send;
 	mqtt::Mqtt mqtt(settings);
@@ -131,9 +141,11 @@ TEST(Mqtt, testMqttSendMessage) {
 	EXPECT_EQ(sendQueue->size(),1u);
 	sleep(1);
 	mqtt.stop();
-	while(mqtt.runningStatus != mqtt::Status::Stopped){std::this_thread::sleep_for(std::chrono::milliseconds(10));}
+	while(mqtt.runningStatus != Status::Stopped){std::this_thread::sleep_for(std::chrono::milliseconds(10));}
 }
 TEST(Mqtt, testMqttDisconnect) {
+	using namespace common;
+
 	std::unique_ptr<mqtt::MqttSettings> settings = setup();
 	std::shared_ptr<MessagePkg::Queue<MessagePkg::Message>> recvQueue = settings->recv;
 	mqtt::Mqtt mqtt(settings);
@@ -141,33 +153,33 @@ TEST(Mqtt, testMqttDisconnect) {
 
 	mqtt.start();
 	sleep(1); // Give the Mqtt a change to start
-	EXPECT_EQ(mqtt.getMqttStatus(),mqtt::Status::Connnecting);
+	EXPECT_EQ(mqtt.getMqttStatus(), Status::Connnecting);
 
 	// Disconnect event.
 	mqtt.mqtt_com.on_disconnect(0);
-	EXPECT_EQ(mqtt.getMqttStatus(),mqtt::Status::Disconnected);
+	EXPECT_EQ(mqtt.getMqttStatus(), Status::Disconnected);
 	sleep(1);
 	// not a successful connect
 	mqtt.mqtt_com.on_connect(1);
 	sleep(1);
-	EXPECT_EQ(mqtt.getMqttStatus(),mqtt::Status::Disconnected);
+	EXPECT_EQ(mqtt.getMqttStatus(), Status::Disconnected);
 	sleep(5);
 
 	mqtt.mqtt_com.on_connect(1);
 	sleep(1);
-	EXPECT_EQ(mqtt.getMqttStatus(),mqtt::Status::Disconnected);
+	EXPECT_EQ(mqtt.getMqttStatus(), Status::Disconnected);
 	sleep(5);
-	EXPECT_EQ(mqtt.getMqttStatus(),mqtt::Status::Connnecting);
+	EXPECT_EQ(mqtt.getMqttStatus(), Status::Connnecting);
 
 	// Connect
 	mqtt.mqtt_com.on_connect(1);
 	mqtt.mqtt_com.on_connect(0);
 	sleep(1);
-	EXPECT_EQ(mqtt.getMqttStatus(),mqtt::Status::Connected);
+	EXPECT_EQ(mqtt.getMqttStatus(), Status::Connected);
 
 	mqtt.stop();
 
-	while(mqtt.runningStatus != mqtt::Status::Stopped){std::this_thread::sleep_for(std::chrono::milliseconds(10));}
+	while(mqtt.runningStatus !=  Status::Stopped){std::this_thread::sleep_for(std::chrono::milliseconds(10));}
 }
 
 

@@ -8,6 +8,8 @@
 #pragma once
 #include <mosquittopp.h>
 #include "MqttPkg.h"
+#include "CommonPkg.h"
+
 class Mqtt_com: public mosqpp::mosquittopp
 {
 public:

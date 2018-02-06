@@ -11,6 +11,7 @@
 #include "MessagePkg.h"
 #include "MqttPkg.h"
 #include "Mqtt_com.h"
+#include "CommonPkg.h"
 #include <thread>
 
 
@@ -24,21 +25,21 @@ public:
 	Mqtt(std::unique_ptr<mqtt::MqttSettings>&& mqttSettings);
 	virtual ~Mqtt();
 	const std::unique_ptr<MqttSettings>& getSettings();
-	const Status& getMqttStatus();
-	const Status& getRunningStatus();
+	const common::Status& getMqttStatus();
+	const common::Status& getRunningStatus();
 	void start();
 	void stop();
 
 private:
 #ifdef DEBUG
 public:
-	void TestChangeStatus(Status newStatus);
+	void TestChangeStatus(common::Status newStatus);
 #endif
 	void run();
 	void handleSubscriptions(bool subscribe=true);
 	std::unique_ptr<MqttSettings> mqttSettings;
 	std::unique_ptr<std::thread> runningThread;
-	Status runningStatus;
+	common::Status runningStatus;
 	Mqtt_com mqtt_com;
 
 };

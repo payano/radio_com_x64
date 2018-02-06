@@ -15,14 +15,14 @@ namespace mqtt {
 Mqtt::Mqtt(std::unique_ptr<mqtt::MqttSettings>& mqttSettings):
 mqttSettings(std::move(mqttSettings)),
 runningThread(nullptr),
-runningStatus(Status::Stopped),
+runningStatus(common::Status::Stopped),
 mqtt_com(this->mqttSettings)
 {}
 
 Mqtt::Mqtt(std::unique_ptr<mqtt::MqttSettings>&& mqttSettings):
 mqttSettings(std::move(mqttSettings)),
 runningThread(nullptr),
-runningStatus(Status::Stopped),
+runningStatus(common::Status::Stopped),
 mqtt_com(this->mqttSettings)
 {}
 
@@ -32,8 +32,8 @@ Mqtt::~Mqtt()
 	stop();
 }
 
-const Status& Mqtt::getMqttStatus(){return mqttSettings->status;}
-const Status& Mqtt::getRunningStatus(){return runningStatus;}
+const common::Status& Mqtt::getMqttStatus(){return mqttSettings->status;}
+const common::Status& Mqtt::getRunningStatus(){return runningStatus;}
 const std::unique_ptr<MqttSettings>& Mqtt::getSettings(){return mqttSettings;}
 
 void Mqtt::start()
@@ -47,6 +47,7 @@ void Mqtt::start()
 
 void Mqtt::run()
 {
+	using namespace common;
 	std::cout << "Started thread Mqtt.\n";
 
 	if(runningStatus == Status::Runnning){return;}
@@ -106,12 +107,14 @@ void Mqtt::run()
 
 void Mqtt::stop()
 {
+	using namespace common;
 	runningStatus = Status::Stopping;
 	// Give thread time to quit
 //	std::this_thread::sleep_for(std::chrono::milliseconds(1));
 }
 
 void Mqtt::handleSubscriptions(bool subscribe){
+	using namespace common;
 	mqtt_com.connect();
 	mqttSettings->status = Status::Connnecting;
 
@@ -132,7 +135,7 @@ void Mqtt::handleSubscriptions(bool subscribe){
 }
 
 #ifdef DEBUG
-void Mqtt::TestChangeStatus(Status newStatus){mqttSettings->status = newStatus;}
+void Mqtt::TestChangeStatus(common::Status newStatus){mqttSettings->status = newStatus;}
 #endif
 
 }
