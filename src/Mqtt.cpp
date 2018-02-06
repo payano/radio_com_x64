@@ -134,8 +134,4 @@ void Mqtt::handleSubscriptions(bool subscribe){
 	}
 }
 
-#ifdef DEBUG
-void Mqtt::TestChangeStatus(common::Status newStatus){mqttSettings->status = newStatus;}
-#endif
-
 }

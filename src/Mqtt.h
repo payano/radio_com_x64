@@ -33,7 +33,6 @@ public:
 private:
 #ifdef DEBUG
 public:
-	void TestChangeStatus(common::Status newStatus);
 #endif
 	void run();
 	void handleSubscriptions(bool subscribe=true);
