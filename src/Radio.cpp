@@ -54,6 +54,8 @@ void Radio::start(){
 	// Detach it so it runs in background
 	runningThread->join();
 
+//	pthread_cancel(runningThread->native_handle());
+
 	// Make it runnable again
 	runningThread.reset();
 	radioThread.reset();
