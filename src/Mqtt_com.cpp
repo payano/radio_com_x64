@@ -9,9 +9,7 @@
 
 Mqtt_com::Mqtt_com(std::unique_ptr<mqtt::MqttSettings>& mqttSettings):
 settings(mqttSettings.get())
-{
-
-}
+{}
 
 
 Mqtt_com::~Mqtt_com()

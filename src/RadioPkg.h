@@ -18,10 +18,11 @@ namespace radio {
 struct node {
 	sockaddr_ieee802154 yo;
 	common::Status connected;
+	// Published services
 	// https://courses.soe.ucsc.edu/courses/cmpe156/Spring14/01/attachments/25556
 };
 
-struct Radio{
+struct RadioSettings{
 	int keepalive;
 	sa_family_t family;
 	uint16_t panid;

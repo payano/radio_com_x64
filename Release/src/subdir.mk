@@ -6,6 +6,7 @@
 CPP_SRCS += \
 ../src/Mqtt.cpp \
 ../src/Mqtt_com.cpp \
+../src/Radio_com.cpp \
 ../src/radio_com_x64.cpp 
 
 C_SRCS += \
@@ -14,12 +15,14 @@ C_SRCS += \
 OBJS += \
 ./src/Mqtt.o \
 ./src/Mqtt_com.o \
+./src/Radio_com.o \
 ./src/af_ieee802154.o \
 ./src/radio_com_x64.o 
 
 CPP_DEPS += \
 ./src/Mqtt.d \
 ./src/Mqtt_com.d \
+./src/Radio_com.d \
 ./src/radio_com_x64.d 
 
 C_DEPS += \

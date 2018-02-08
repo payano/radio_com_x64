@@ -7,6 +7,8 @@
 
 #pragma once
 
+static constexpr unsigned int THREADDELAY = 100; // ms
+
 namespace common {
 enum Status {
 	Disconnected = 0,

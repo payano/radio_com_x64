@@ -11,6 +11,9 @@
 #include <chrono>
 #include "MessagePkg.h"
 #include "Mqtt.h"
+#include <future>
+#include <csignal>
+#include <string.h>
 
 #ifdef DEBUG
 #include "test/mqtt_test.h"
@@ -20,29 +23,26 @@
 using namespace MessagePkg;
 
 mqtt::MqttSettings mqttSettings;
-void mqtt_thread(){
-//	mqtt::Mqtt(mqttSettings);
 
+void signal_handler(int signal)
+{
+	std::cout << "SIGNAL: " << strsignal(signal) << std::endl;
+	exit(1);
+//  gSignalStatus = signal;
 }
-void zigbee_thread(){
-//	Zigbee(to_mqtt, to_zigbee);
-}
-
 int main(int argc, char **argv) {
 #ifdef DEBUG
 	std::cout << "DEBUGGING!!\n";
 	::testing::InitGoogleTest(&argc, argv);
 	return RUN_ALL_TESTS();
 #endif
+	// Install a signal handler
+	std::signal(SIGINT, signal_handler);
+	std::signal(SIGTERM, signal_handler);
 	std::cout << "Starting application.\n";
-//    std::cout << "Starting Mqtt thread.\n";
-//    std::thread mqtt(mqtt_thread);
-//    std::cout << "Starting Zigbee thread.\n";
-//    std::thread zigbee(zigbee_thread);
-//
-//    mqtt.join();
-//    zigbee.join();
-//    std::cout << "Exiting application.\n";
+	std::promise<void> p;
+	p.get_future().wait();
+
 
 	return 0;
 }

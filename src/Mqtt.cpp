@@ -13,17 +13,17 @@
 namespace mqtt {
 
 Mqtt::Mqtt(std::unique_ptr<mqtt::MqttSettings>& mqttSettings):
-mqttSettings(std::move(mqttSettings)),
-runningThread(nullptr),
-runningStatus(common::Status::Stopped),
-mqtt_com(this->mqttSettings)
+	mqttSettings(std::move(mqttSettings)),
+	runningThread(nullptr),
+	runningStatus(common::Status::Stopped),
+	mqtt_com(this->mqttSettings)
 {}
 
 Mqtt::Mqtt(std::unique_ptr<mqtt::MqttSettings>&& mqttSettings):
-mqttSettings(std::move(mqttSettings)),
-runningThread(nullptr),
-runningStatus(common::Status::Stopped),
-mqtt_com(this->mqttSettings)
+	mqttSettings(std::move(mqttSettings)),
+	runningThread(nullptr),
+	runningStatus(common::Status::Stopped),
+	mqtt_com(this->mqttSettings)
 {}
 
 Mqtt::~Mqtt()
@@ -38,11 +38,23 @@ const std::unique_ptr<MqttSettings>& Mqtt::getSettings(){return mqttSettings;}
 
 void Mqtt::start()
 {
+	// Want to run Mqtt inside its own thread.
+	if(mqttThread.get() == nullptr){
+		// start a new thread and return to the caller.
+		mqttThread = std::make_unique<std::thread>(&Mqtt::start, this);
+		mqttThread->detach();
+		return;
+	}
+
 	if(runningThread != nullptr){throw std::invalid_argument("Thread already started.");}
 	// Create a thread and start running the instance.
 	runningThread = std::make_unique<std::thread>(&Mqtt::run, this);
 	// Detach it so it runs in background
-	runningThread->detach();
+	runningThread->join();
+
+	// Make it runnable again
+	runningThread.reset();
+	mqttThread.reset();
 }
 
 void Mqtt::run()
@@ -100,7 +112,7 @@ void Mqtt::run()
 	// Reset all statuses in settings.
 
 	runningStatus = Status::Stopped;
-	runningThread.reset();
+//	runningThread.reset();
 	std::cout << "Quit thread Mqtt!\n";
 
 }

@@ -24,7 +24,6 @@ private:
 #ifdef DEBUG
 public:
 #endif
-
 	void on_connect(int rc);
 	void on_disconnect(int rc);
 	void on_publish(int mid);
