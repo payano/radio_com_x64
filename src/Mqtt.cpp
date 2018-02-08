@@ -9,6 +9,7 @@
 #include <iostream>
 #include <exception>
 #include <sys/time.h>
+#include <assert.h>
 
 namespace mqtt {
 
@@ -38,6 +39,10 @@ const std::unique_ptr<MqttSettings>& Mqtt::getSettings(){return mqttSettings;}
 
 void Mqtt::start()
 {
+	assert(mqttSettings != nullptr);
+	assert(mqttSettings->recv != nullptr);
+	assert(mqttSettings->send != nullptr);
+
 	// Want to run Mqtt inside its own thread.
 	if(mqttThread.get() == nullptr){
 		// start a new thread and return to the caller.

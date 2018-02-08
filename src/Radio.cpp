@@ -7,6 +7,7 @@
 
 #include "Radio.h"
 #include <iostream>
+#include <assert.h>
 
 namespace radio {
 
@@ -35,6 +36,10 @@ const common::Status& Radio::getRunningStatus(){return runningStatus;}
 const std::unique_ptr<RadioSettings>& Radio::getSettings(){return radioSettings;}
 
 void Radio::start(){
+	assert(radioSettings != nullptr);
+	assert(radioSettings->recv != nullptr);
+	assert(radioSettings->send != nullptr);
+
 	// Want to run Mqtt inside its own thread.
 	if(radioThread.get() == nullptr){
 		// start a new thread and return to the caller.
