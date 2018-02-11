@@ -18,7 +18,8 @@
 #include <string.h>
 #include <memory>
 #ifdef DEBUG
-#include "test/mqtt_test.h"
+//#include "test/mqtt_test.h"
+#include "test/radio_test.h"
 #include "gtest/gtest.h"
 #endif
 //

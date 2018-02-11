@@ -18,5 +18,9 @@ enum Status {
 	Runnning = 4,
 	Stopping = 5
 };
+enum Method {
+	get = 0,
+	set = 1
+};
 
 }

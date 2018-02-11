@@ -12,6 +12,9 @@
 #include "../Radio.h"
 #include "../RadioPkg.h"
 #include "../CommonPkg.h"
+#include <string.h>
+#include <vector>
+#include <utility>      // std::move
 
 namespace RadioTest {
 std::unique_ptr<radio::RadioSettings> setup(){
@@ -22,10 +25,11 @@ std::unique_ptr<radio::RadioSettings> setup(){
 	std::unique_ptr<RadioSettings> settings = std::make_unique<RadioSettings>();
 	settings->recv = std::make_shared<MessagePkg::Queue<MessagePkg::Message>>();
 	settings->send= std::make_shared<MessagePkg::Queue<MessagePkg::Message>>();
-	settings->keepalive = "60";
-	settings->family = AF_IEEE802154;
-	settings->panid = 0xdead;
-	settings->host_addr = {0xd6, 0x55, 0x2c, 0xd6, 0xe4, 0x1c, 0xeb, 0x57};
+	settings->keepalive = 60;
+	settings->host_addr.addr.pan_id = 0xdead;
+	settings->host_addr.family = AF_IEEE802154;
+	uint8_t hostaddr[] = {0xd6, 0x55, 0x2c, 0xd6, 0xe4, 0x1c, 0xeb, 0x57};
+	memcpy(settings->host_addr.addr.hwaddr, hostaddr, IEEE802154_ADDR_LEN);
 	settings->status = Status::Disconnected;
 
 

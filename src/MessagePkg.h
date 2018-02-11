@@ -9,6 +9,7 @@
 #include <mutex>
 #include <condition_variable>
 #include <thread>
+#include "CommonPkg.h"
 
 #pragma once
 
@@ -69,6 +70,7 @@ class Queue
 };
 
 struct Message {
+	common::Method method;
 	std::string base;
 	std::string topic;
 	std::string value;

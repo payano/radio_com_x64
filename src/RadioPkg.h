@@ -16,17 +16,18 @@
 namespace radio {
 
 struct node {
-	sockaddr_ieee802154 yo;
+	sockaddr_ieee802154 src;
 	common::Status connected;
+	std::string base;
+	std::string topic;
+
 	// Published services
 	// https://courses.soe.ucsc.edu/courses/cmpe156/Spring14/01/attachments/25556
 };
 
 struct RadioSettings{
 	int keepalive;
-	sa_family_t family;
-	uint16_t panid;
-	uint8_t host_addr[IEEE802154_ADDR_LEN];
+	sockaddr_ieee802154 host_addr;
 	common::Status status;
 	std::vector<node> nodes;
 	std::shared_ptr<MessagePkg::Queue<MessagePkg::Message>> recv;
