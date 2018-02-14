@@ -15,17 +15,24 @@
 
 namespace radio {
 
+struct publishedResource {
+	common::Type type;
+	std::string base;
+	std::map<std::string, common::Topic> topics;
+
+};
+
 struct node {
 	sockaddr_ieee802154 src;
 	common::Status connected;
-	std::string base;
-	std::string topic;
+	std::vector<publishedResource> resources;
 
 	// Published services
 	// https://courses.soe.ucsc.edu/courses/cmpe156/Spring14/01/attachments/25556
 };
 
-struct RadioSettings{
+class RadioSettings{
+public:
 	int keepalive;
 	sockaddr_ieee802154 host_addr;
 	common::Status status;

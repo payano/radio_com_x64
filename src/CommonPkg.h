@@ -22,5 +22,13 @@ enum Method {
 	get = 0,
 	set = 1
 };
-
+struct Topic{
+	std::string get;
+	std::string set;
+};
+enum Type {
+	LED = 0,
+	RGB = 1,
+	BUTTON = 2
+};
 }

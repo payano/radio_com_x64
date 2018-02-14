@@ -14,20 +14,13 @@
 
 namespace mqtt {
 
-enum Type {
-	LED = 0,
-	RGB = 1,
-	BUTTON = 2
-};
-struct Topic{
-	std::string get;
-	std::string set;
-};
+
+
 struct Accessory{
-	Type type;
+	common::Type type;
 	std::string name;
 	std::string base;
-	std::map<std::string, Topic> topics; // basestring + topic
+	std::map<std::string, common::Topic> topics; // basestring + topic
 };
 
 struct MqttSettings{

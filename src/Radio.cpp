@@ -33,7 +33,9 @@ Radio::~Radio()
 
 const common::Status& Radio::getRadioStatus(){return radioSettings->status;}
 const common::Status& Radio::getRunningStatus(){return runningStatus;}
-const std::unique_ptr<RadioSettings>& Radio::getSettings(){return radioSettings;}
+const std::unique_ptr<RadioSettings>& Radio::getSettings(){
+	return radioSettings;
+}
 
 void Radio::start(){
 	assert(radioSettings != nullptr);

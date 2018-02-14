@@ -120,7 +120,7 @@ TEST(Mqtt, testMqttRecvMessage) {
 	// Fake a connection
 	mqtt.mqtt_com.on_connect(0);
 
-	recvQueue->push(MessagePkg::Message{"kitchen/rgb/", "get", "255,255,255"});
+	recvQueue->push(MessagePkg::Message{common::Method::get, "kitchen/rgb/", "get", "255,255,255"});
 	EXPECT_EQ(recvQueue->size(),1u);
 	sleep(1);
 	EXPECT_EQ(recvQueue->size(),0u);
@@ -137,7 +137,7 @@ TEST(Mqtt, testMqttSendMessage) {
 	mqtt.start();
 	sleep(1); // Give the Mqtt a change to start
 
-	sendQueue->push(MessagePkg::Message{"kitchen/rgb/", "set", "255,255,255"});
+	sendQueue->push(MessagePkg::Message{common::Method::set, "kitchen/rgb/", "set", "255,255,255"});
 	EXPECT_EQ(sendQueue->size(),1u);
 	sleep(1);
 	mqtt.stop();
@@ -149,7 +149,7 @@ TEST(Mqtt, testMqttDisconnect) {
 	std::unique_ptr<mqtt::MqttSettings> settings = setup();
 	std::shared_ptr<MessagePkg::Queue<MessagePkg::Message>> recvQueue = settings->recv;
 	mqtt::Mqtt mqtt(settings);
-	recvQueue->push(MessagePkg::Message{"kitchen/rgb/", "get", "255,255,255"});
+	recvQueue->push(MessagePkg::Message{common::Method::get, "kitchen/rgb/", "get", "255,255,255"});
 
 	mqtt.start();
 	sleep(1); // Give the Mqtt a change to start
