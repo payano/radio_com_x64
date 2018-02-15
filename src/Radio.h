@@ -26,6 +26,9 @@ public:
 	void start() override;
 	void stop() override;
 private:
+#ifdef DEBUG
+public:
+#endif
 	void runRecv();
 	void runSend();
 	std::unique_ptr<RadioSettings> radioSettings;

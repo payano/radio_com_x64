@@ -114,8 +114,24 @@ TEST(Mqtt, testThreadStartStop) {
 
 }
 
-TEST(Radio, testSetupRecvAndSend) {
+TEST(Radio, testRadioRecvMessage) {
+	using namespace common;
 
+	std::unique_ptr<radio::RadioSettings> settings = setup();
+	std::shared_ptr<MessagePkg::Queue<MessagePkg::Message>> recvQueue = settings->recv;
+	radio::Radio radio(settings);
+	radio.start();
+	sleep(1); // Give the Mqtt a change to start
+
+	// Fake a connection
+//	mqtt.mqtt_com.on_connect(0);
+
+	recvQueue->push(MessagePkg::Message{common::Method::get, "kitchen/rgb/", "get", "255,255,255"});
+	EXPECT_EQ(recvQueue->size(),1u);
+	sleep(1);
+	EXPECT_EQ(recvQueue->size(),0u);
+	radio.stop();
+	while(radio.runningStatus != Status::Stopped){std::this_thread::sleep_for(std::chrono::milliseconds(10));}
 }
 
 }
