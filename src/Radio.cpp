@@ -13,15 +13,19 @@ namespace radio {
 
 Radio::Radio(std::unique_ptr<radio::RadioSettings>& radioSettings):
 	radioSettings(std::move(radioSettings)),
-	runningThread(nullptr),
+	threadRecv(nullptr),
 	runningStatus(common::Status::Stopped),
-	radio_com(this->radioSettings)
+	radio_com(this->radioSettings),
+	runningRecv(false),
+	runningSend(false)
 {}
 Radio::Radio(std::unique_ptr<radio::RadioSettings>&& radioSettings):
 	radioSettings(std::move(radioSettings)),
-	runningThread(nullptr),
+	threadRecv(nullptr),
 	runningStatus(common::Status::Stopped),
-	radio_com(this->radioSettings)
+	radio_com(this->radioSettings),
+	runningRecv(false),
+	runningSend(false)
 {}
 
 
@@ -50,25 +54,29 @@ void Radio::start(){
 		return;
 	}
 
-	if(runningThread != nullptr){throw std::invalid_argument("Thread already started.");}
+	if(threadRecv != nullptr){throw std::invalid_argument("Thread already started.");}
 	// Create a thread and start running the instance.
-	runningThread = std::make_unique<std::thread>(&Radio::run, this);
+	threadRecv = std::make_unique<std::thread>(&Radio::runRecv, this);
+	threadSend= std::make_unique<std::thread>(&Radio::runSend, this);
 	// Detach it so it runs in background
-	runningThread->join();
+	std::cout << "Started thread Radio.\n";
+	threadRecv->join();
+	threadSend->join();
+	std::cout << "Closing thread Radio.\n";
 
 //	pthread_cancel(runningThread->native_handle());
 
 	// Make it runnable again
-	runningThread.reset();
+	threadRecv.reset();
 	radioThread.reset();
 }
 
-void Radio::run(){
+void Radio::runRecv(){
 	using namespace common;
-	std::cout << "Started thread Radio.\n";
 
-	if(runningStatus == Status::Runnning){return;}
+	if(runningStatus == Status::Runnning && runningRecv){return;}
 
+	runningRecv = true;
 	runningStatus = Status::Runnning;
 
 	while(runningStatus == Status::Runnning)
@@ -76,15 +84,41 @@ void Radio::run(){
 
 		std::this_thread::sleep_for(std::chrono::milliseconds(THREADDELAY));
 	}
-	std::cout << "Closing thread Radio.\n";
+
+	// Remove all connections to Mqtt broker server...
+	//radio_com.disconnect();
+	// Reset all statuses in settings.
+	runningRecv = false;
+
+	runningStatus = runningRecv && runningSend ? Status::Stopping : Status::Stopped;
+//	runningThread.reset();
+	std::cout << "Quit thread Radio!\n";
+}
+
+void Radio::runSend(){
+	using namespace common;
+
+	if(runningStatus == Status::Runnning && runningSend){return;}
+
+	runningSend = true;
+	runningStatus = Status::Runnning;
+
+	while(runningStatus == Status::Runnning)
+	{
+
+		std::this_thread::sleep_for(std::chrono::milliseconds(THREADDELAY));
+	}
 
 	// Remove all connections to Mqtt broker server...
 	//radio_com.disconnect();
 	// Reset all statuses in settings.
 
-	runningStatus = Status::Stopped;
-//	runningThread.reset();
-	std::cout << "Quit thread Radio!\n";}
+	runningSend = false;
+
+	runningStatus = runningRecv && runningSend ? Status::Stopping : Status::Stopped;
+
+	std::cout << "Quit thread Radio!\n";
+}
 
 void Radio::stop(){
 	using namespace common;

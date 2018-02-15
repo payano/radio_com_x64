@@ -26,12 +26,16 @@ public:
 	void start() override;
 	void stop() override;
 private:
-	void run();
+	void runRecv();
+	void runSend();
 	std::unique_ptr<RadioSettings> radioSettings;
-	std::unique_ptr<std::thread> runningThread;
+	std::unique_ptr<std::thread> threadRecv;
+	std::unique_ptr<std::thread> threadSend;
 	std::unique_ptr<std::thread> radioThread;
 	common::Status runningStatus;
 	Radio_com radio_com;
+	bool runningRecv;
+	bool runningSend;
 
 };
 

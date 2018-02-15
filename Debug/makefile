@@ -45,7 +45,7 @@ all: radio_com_x64
 radio_com_x64: $(OBJS) $(USER_OBJS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: GCC C++ Linker'
-	g++  -o "radio_com_x64" $(OBJS) $(USER_OBJS) $(LIBS)
+	g++ -L/usr/include/ -o "radio_com_x64" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 

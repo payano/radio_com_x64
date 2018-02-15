@@ -36,6 +36,7 @@ std::unique_ptr<radio::RadioSettings> setup(){
 	// Create the one node that has both RGB and LED-warm.
 
 	node oneNode;
+	oneNode.connected = Status::Disconnected;
 	oneNode.src.family = AF_IEEE802154;
 	oneNode.src.addr.addr_type = IEEE802154_ADDR_SHORT;
 	oneNode.src.addr.short_addr = 0x6001;
@@ -69,7 +70,6 @@ std::unique_ptr<radio::RadioSettings> setup(){
 TEST(Radio, testInitialSettings) {
 	using namespace common;
 	radio::Radio radio(setup());
-
 	auto& settingsCopy = radio.getSettings();
 
 	EXPECT_EQ(settingsCopy->host_addr.family, AF_IEEE802154);
@@ -77,9 +77,40 @@ TEST(Radio, testInitialSettings) {
 	EXPECT_EQ(settingsCopy->host_addr.addr.pan_id, 0x0023);
 	EXPECT_EQ(settingsCopy->host_addr.addr.short_addr, 0x0002);
 
+	EXPECT_EQ(settingsCopy->nodes.size(),1u);
+	EXPECT_EQ(settingsCopy->nodes[0].connected, Status::Disconnected);
+	EXPECT_EQ(settingsCopy->nodes[0].src.family, AF_IEEE802154);
+	EXPECT_EQ(settingsCopy->nodes[0].src.addr.short_addr, 0x6001);
+	EXPECT_EQ(settingsCopy->nodes[0].src.addr.pan_id, 0x0023);
+
+	EXPECT_EQ(settingsCopy->nodes[0].resources.size(), 2u);
+
 }
 
-TEST(Radio, testSetupSend) {
+TEST(Mqtt, testThreadStartStop) {
+	using namespace common;
+	radio::Radio radio(setup());
+
+	//Start radio.
+	radio.start();
+	sleep(1); // Give the Mqtt a change to start
+	EXPECT_EQ(radio.getRunningStatus(), Status::Runnning);
+
+	// Try to stop it
+	radio.stop();
+	EXPECT_EQ(radio.getRunningStatus(), Status::Stopping);
+	sleep(1);
+	EXPECT_EQ(radio.getRunningStatus(), Status::Stopped);
+
+	radio.start();
+	sleep(1); // Give the Mqtt a change to start
+	EXPECT_EQ(radio.getRunningStatus(), Status::Runnning);
+
+	// Try to stop it
+	radio.stop();
+	EXPECT_EQ(radio.getRunningStatus(), Status::Stopping);
+	sleep(1);
+	EXPECT_EQ(radio.getRunningStatus(), Status::Stopped);
 
 }
 
