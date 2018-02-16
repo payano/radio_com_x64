@@ -23,7 +23,7 @@ std::unique_ptr<radio::RadioSettings> setup(){
 	using namespace common;
 
 	std::unique_ptr<RadioSettings> settings = std::make_unique<RadioSettings>();
-	settings->recv = std::make_shared<MessagePkg::Queue<MessagePkg::Message>>();
+	settings->recieve = std::make_shared<MessagePkg::Queue<MessagePkg::Message>>();
 	settings->send = std::make_shared<MessagePkg::Queue<MessagePkg::Message>>();
 	settings->keepalive = 60;
 	settings->host_addr.addr.pan_id = 0x0023;
@@ -118,7 +118,7 @@ TEST(Radio, testRadioRecvMessage) {
 	using namespace common;
 
 	std::unique_ptr<radio::RadioSettings> settings = setup();
-	std::shared_ptr<MessagePkg::Queue<MessagePkg::Message>> recvQueue = settings->recv;
+	std::shared_ptr<MessagePkg::Queue<MessagePkg::Message>> recvQueue = settings->recieve;
 	radio::Radio radio(settings);
 	radio.start();
 	sleep(1); // Give the Mqtt a change to start

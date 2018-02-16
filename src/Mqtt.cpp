@@ -91,7 +91,7 @@ void Mqtt::run()
 			}
 		}
 
-		if(!mqttSettings->recv->isEmpty() && mqttSettings->status == Status::Connected)
+		if(!mqttSettings->recv->isEmpty())
 		{
 			// These are going to MQTT Broker (received from radio)
 			MessagePkg::Message send;

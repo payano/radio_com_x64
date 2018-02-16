@@ -14,6 +14,7 @@ namespace radio {
 Radio::Radio(std::unique_ptr<radio::RadioSettings>& radioSettings):
 	radioSettings(std::move(radioSettings)),
 	threadRecv(nullptr),
+	threadSend(nullptr),
 	runningStatus(common::Status::Stopped),
 	radio_com(this->radioSettings),
 	runningRecv(false),
@@ -22,6 +23,7 @@ Radio::Radio(std::unique_ptr<radio::RadioSettings>& radioSettings):
 Radio::Radio(std::unique_ptr<radio::RadioSettings>&& radioSettings):
 	radioSettings(std::move(radioSettings)),
 	threadRecv(nullptr),
+	threadSend(nullptr),
 	runningStatus(common::Status::Stopped),
 	radio_com(this->radioSettings),
 	runningRecv(false),
@@ -43,7 +45,7 @@ const std::unique_ptr<RadioSettings>& Radio::getSettings(){
 
 void Radio::start(){
 	assert(radioSettings != nullptr);
-	assert(radioSettings->recv != nullptr);
+	assert(radioSettings->recieve != nullptr);
 	assert(radioSettings->send != nullptr);
 
 	// Want to run Mqtt inside its own thread.
@@ -81,6 +83,10 @@ void Radio::runRecv(){
 
 	while(runningStatus == Status::Runnning)
 	{
+		if(!radioSettings->recieve->isEmpty()){
+			MessagePkg::Message message;
+			radioSettings->recieve->pop(message);
+		}
 
 		std::this_thread::sleep_for(std::chrono::milliseconds(THREADDELAY));
 	}
@@ -105,6 +111,11 @@ void Radio::runSend(){
 
 	while(runningStatus == Status::Runnning)
 	{
+		// Recieved from queue will be sent.
+		if(!radioSettings->send->isEmpty()){
+			MessagePkg::Message message;
+			radioSettings->send->pop(message);
+		}
 
 		std::this_thread::sleep_for(std::chrono::milliseconds(THREADDELAY));
 	}

@@ -37,7 +37,7 @@ public:
 	sockaddr_ieee802154 host_addr;
 	common::Status status;
 	std::vector<node> nodes;
-	std::shared_ptr<MessagePkg::Queue<MessagePkg::Message>> recv;
+	std::shared_ptr<MessagePkg::Queue<MessagePkg::Message>> recieve;
 	std::shared_ptr<MessagePkg::Queue<MessagePkg::Message>> send;
 };
 
