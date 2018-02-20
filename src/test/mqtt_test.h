@@ -21,7 +21,7 @@ std::unique_ptr<mqtt::MqttSettings> setup(){
 	using namespace common;
 
 	std::unique_ptr<MqttSettings> settings = std::make_unique<MqttSettings>();
-	settings->recv = std::make_shared<MessagePkg::Queue<MessagePkg::Message>>();
+	settings->recieve = std::make_shared<MessagePkg::Queue<MessagePkg::Message>>();
 	settings->send= std::make_shared<MessagePkg::Queue<MessagePkg::Message>>();
 	settings->id = "0";
 	settings->host = "localhost";
@@ -52,6 +52,7 @@ std::unique_ptr<mqtt::MqttSettings> setup(){
 	lamp.topics["light"].set = "get"; // Home assistant will get and we will send it.
 	lamp.topics["brightness"].get = "set"; // Home assistant will set and we will get it.
 	lamp.topics["brightness"].set = "get"; // Home assistant will get and we will send it.
+	settings->accessories.emplace_back(lamp);
 
 	return settings;
 }
@@ -66,7 +67,7 @@ TEST(Mqtt, testIntialSettings) {
 	EXPECT_EQ(settingsCopy->host, "localhost");
 	EXPECT_EQ(settingsCopy->port, 1883);
 	EXPECT_EQ(settingsCopy->keepalive, 60);
-	EXPECT_EQ(settingsCopy->recv->size(),0u);
+	EXPECT_EQ(settingsCopy->recieve->size(),0u);
 	EXPECT_EQ(settingsCopy->send->size(),0u);
 
 	EXPECT_EQ(mqtt.getMqttStatus(), Status::Disconnected);
@@ -78,7 +79,7 @@ TEST(Mqtt, testIntialSettings) {
 	mqtt.mqtt_com.on_disconnect(0);
 	EXPECT_EQ(mqtt.getMqttStatus(), Status::Disconnected);
 
-	EXPECT_NE(settingsCopy->recv.get(), nullptr);
+	EXPECT_NE(settingsCopy->recieve.get(), nullptr);
 	EXPECT_NE(settingsCopy->send.get(), nullptr);
 }
 TEST(Mqtt, testThreadStartStop) {

@@ -30,7 +30,7 @@ struct MqttSettings{
 	int keepalive;
 	common::Status status;
 	std::vector<Accessory> accessories;
-	std::shared_ptr<MessagePkg::Queue<MessagePkg::Message>> recv;
+	std::shared_ptr<MessagePkg::Queue<MessagePkg::Message>> recieve;
 	std::shared_ptr<MessagePkg::Queue<MessagePkg::Message>> send;
 };
 

@@ -31,6 +31,7 @@ public:
 #endif
 	void runRecv();
 	void runSend();
+	int ieee802154_recv();
 	std::unique_ptr<RadioSettings> radioSettings;
 	std::unique_ptr<std::thread> threadRecv;
 	std::unique_ptr<std::thread> threadSend;

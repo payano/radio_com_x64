@@ -40,26 +40,33 @@ const std::unique_ptr<MqttSettings>& Mqtt::getSettings(){return mqttSettings;}
 void Mqtt::start()
 {
 	assert(mqttSettings != nullptr);
-	assert(mqttSettings->recv != nullptr);
+	assert(mqttSettings->recieve != nullptr);
 	assert(mqttSettings->send != nullptr);
 
 	// Want to run Mqtt inside its own thread.
 	if(mqttThread.get() == nullptr){
+
 		// start a new thread and return to the caller.
 		mqttThread = std::make_unique<std::thread>(&Mqtt::start, this);
 		mqttThread->detach();
+
 		return;
 	}
 
 	if(runningThread != nullptr){throw std::invalid_argument("Thread already started.");}
 	// Create a thread and start running the instance.
+
 	runningThread = std::make_unique<std::thread>(&Mqtt::run, this);
 	// Detach it so it runs in background
+	std::cout << "LINE: " << __LINE__ << std::endl;
+
 	runningThread->join();
 
 	// Make it runnable again
 	runningThread.reset();
+
 	mqttThread.reset();
+
 }
 
 void Mqtt::run()
@@ -71,31 +78,42 @@ void Mqtt::run()
 
 	runningStatus = Status::Runnning;
 
-	handleSubscriptions();
-
 	unsigned int lastRecvQueueLen = 0u;
 	__time_t nextTimeout = 0u;
 
+	bool subscribed = false;
 	while(runningStatus == Status::Runnning)
 	{
+		if(mqttSettings->status == common::Status::Connected && subscribed == false){
+			handleSubscriptions();
+			subscribed = true;
+
+		}
+
 		if(mqttSettings->status == Status::Disconnected)
 		{
+			std::cout << "LINE: " << __LINE__ << std::endl;
+
 			// Disconnect, need to reconnect.
 			timeval tv;
 			gettimeofday(&tv,NULL);
 			if(tv.tv_sec > nextTimeout)
 			{
+				subscribed = false;
 				std::cout << "MQTT: disconnected from server, reconnecting.\n";
 				nextTimeout = tv.tv_sec + RECONNECT_TIMEOUT;
 				mqtt_com.connect();
+
 			}
+
 		}
 
-		if(!mqttSettings->recv->isEmpty())
+		if(!mqttSettings->recieve->isEmpty())
 		{
+
 			// These are going to MQTT Broker (received from radio)
 			MessagePkg::Message send;
-			mqttSettings->recv->pop(send);
+			mqttSettings->recieve->pop(send);
 			std::string message = send.base + send.topic;
 			mqtt_com.sendMessage(message.c_str(), send.value.c_str());
 
@@ -132,17 +150,17 @@ void Mqtt::stop()
 
 void Mqtt::handleSubscriptions(bool subscribe){
 	using namespace common;
-	mqtt_com.connect();
 	mqttSettings->status = Status::Connnecting;
-
 	for(auto& sub: mqttSettings->accessories)
 	{
 		for(auto& topic: sub.topics)
 		{
 			// subscribe to all getters
-			std::string subscription = sub.base + topic.first + topic.second.get;
+			std::string subscription = sub.base + topic.first + "/"+ topic.second.get;
 			if(subscribe)
 			{
+				std::cout << "subscribing to: "<< subscription.c_str() << "\n";
+
 				mqtt_com.subscribe(subscription.c_str());
 			}else{
 				mqtt_com.unsubscribe(subscription.c_str());

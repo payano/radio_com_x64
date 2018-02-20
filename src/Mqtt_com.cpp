@@ -6,6 +6,7 @@
 #include <assert.h>
 #include <exception>
 #include <memory>
+#undef DEBUG
 
 Mqtt_com::Mqtt_com(std::unique_ptr<mqtt::MqttSettings>& mqttSettings):
 settings(mqttSettings.get())
@@ -40,6 +41,7 @@ bool Mqtt_com::sendMessage(const char* topic, const  char * message)
 
 }
 void Mqtt_com::connect(){
+
 #ifndef DEBUG
 	mosqpp::mosquittopp(settings->id.c_str());
 	mosqpp::lib_init();        // Mandatory initialization for mosquitto library
@@ -63,9 +65,11 @@ void Mqtt_com::subscribe(const char* subject)
 {
 #ifndef DEBUG
 
+	std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 	// int subscribe(int *mid, const char *sub, int qos=0);
 	int messageId = 0; // if we want to track if the message has been sent (ack)
-	int rc = mosquittopp::subscribe(&messageId,subject);
+
+	int rc = mosquittopp::subscribe(&messageId, subject);
 
 	if(rc != MOSQ_ERR_SUCCESS){throw std::invalid_argument("Subscription failed");}
 #endif
@@ -119,7 +123,7 @@ void Mqtt_com::unsubscribe(const char *sub){
 void Mqtt_com::on_subscribe(int mid, int qos_count, const int *granted_qos)
 {
 	// Fetch if the subscription was ok!
-	std::cout << "mid: " << std::to_string(mid);
+	std::cout << "Subscribtion success\n";
 }
 
 void Mqtt_com::on_publish(int mid)
