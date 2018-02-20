@@ -85,8 +85,7 @@ void Mqtt::run()
 	while(runningStatus == Status::Runnning)
 	{
 		if(mqttSettings->status == common::Status::Connected && subscribed == false){
-			handleSubscriptions();
-			subscribed = true;
+			handleSubscriptions(subscribed);
 
 		}
 
@@ -148,7 +147,7 @@ void Mqtt::stop()
 //	std::this_thread::sleep_for(std::chrono::milliseconds(1));
 }
 
-void Mqtt::handleSubscriptions(bool subscribe){
+void Mqtt::handleSubscriptions(bool subscribe, bool& subscribed){
 	using namespace common;
 	mqttSettings->status = Status::Connnecting;
 	for(auto& sub: mqttSettings->accessories)
@@ -167,6 +166,7 @@ void Mqtt::handleSubscriptions(bool subscribe){
 			}
 		}
 	}
+	subscribed = true;
 }
 
 }
