@@ -8,7 +8,7 @@
 #include "Radio.h"
 #include <iostream>
 #include <assert.h>
-
+#include "af_ieee802154.h"
 namespace radio {
 
 Radio::Radio(std::unique_ptr<radio::RadioSettings>& radioSettings):
@@ -76,6 +76,7 @@ void Radio::start(){
 void Radio::runRecv(){
 	using namespace common;
 
+	// From mqtt
 	if(runningStatus == Status::Runnning && runningRecv){return;}
 
 	runningRecv = true;
@@ -104,6 +105,7 @@ void Radio::runRecv(){
 void Radio::runSend(){
 	using namespace common;
 
+	// to mqtt
 	if(runningStatus == Status::Runnning && runningSend){return;}
 
 	runningSend = true;
@@ -111,11 +113,8 @@ void Radio::runSend(){
 
 	while(runningStatus == Status::Runnning)
 	{
-		// Recieved from queue will be sent.
-		if(!radioSettings->send->isEmpty()){
-			MessagePkg::Message message;
-			radioSettings->send->pop(message);
-		}
+		// Recieved from radio will be sen to mqtt
+		ieee802154_recv();
 
 		std::this_thread::sleep_for(std::chrono::milliseconds(THREADDELAY));
 	}
