@@ -35,7 +35,7 @@ private:
 public:
 #endif
 	void run();
-	void handleSubscriptions(bool subscribe=true, bool& subscribed);
+	void handleSubscriptions(bool subscribe, bool& subscribed);
 	std::unique_ptr<MqttSettings> mqttSettings;
 	std::unique_ptr<std::thread> runningThread;
 	std::unique_ptr<std::thread> mqttThread;

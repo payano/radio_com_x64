@@ -88,10 +88,10 @@ int main(int argc, char **argv) {
 //	std::signal(SIGTERM, signal_handler);
 
 	mqtt::Mqtt mqtt(mqttSettings);
-//	radio::Radio radio(radioSettings);
+	radio::Radio radio(radioSettings);
 
 	mqtt.start();
-//	radio.start();
+	radio.start();
 
 	std::cout << "Starting application.\n";
 	std::promise<void> p;

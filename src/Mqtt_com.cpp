@@ -6,6 +6,9 @@
 #include <assert.h>
 #include <exception>
 #include <memory>
+#include <string>
+#include <unistd.h>
+
 #undef DEBUG
 
 Mqtt_com::Mqtt_com(std::unique_ptr<mqtt::MqttSettings>& mqttSettings):
@@ -32,18 +35,15 @@ bool Mqtt_com::sendMessage(const char* topic, const  char * message)
 	// * qos (0,1,2)
 	// * retain (boolean) - indicates if message is retained on broker or not
 	// Should return MOSQ_ERR_SUCCESS
-#ifndef DEBUG
 	int ret = mosquittopp::publish(NULL,topic,strlen(message), message,1,false);
 	return ( ret == MOSQ_ERR_SUCCESS );
-#else
-	return true;
-#endif
 
 }
 void Mqtt_com::connect(){
 
 #ifndef DEBUG
-	mosqpp::mosquittopp(settings->id.c_str());
+	auto pid = std::to_string((int)getpid());
+	mosqpp::mosquittopp(pid.c_str());
 	mosqpp::lib_init();        // Mandatory initialization for mosquitto library
 	connect_async(settings->host.c_str(),     // non blocking blocking connection to broker request
 			settings->port,
@@ -63,16 +63,12 @@ void Mqtt_com::disconnect(){
 
 void Mqtt_com::subscribe(const char* subject)
 {
-#ifndef DEBUG
-
-	std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 	// int subscribe(int *mid, const char *sub, int qos=0);
 	int messageId = 0; // if we want to track if the message has been sent (ack)
 
+	std::cout << "subject: " << subject << std::endl;
 	int rc = mosquittopp::subscribe(&messageId, subject);
-
 	if(rc != MOSQ_ERR_SUCCESS){throw std::invalid_argument("Subscription failed");}
-#endif
 }
 
 void Mqtt_com::on_disconnect(int rc)
