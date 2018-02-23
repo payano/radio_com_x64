@@ -125,7 +125,16 @@ void Radio::runSend(){
 	{
 		// Recieved from radio will be sen to mqtt
 //		ieee802154_recv();
-		ieee802154_send();
+
+		if(!radioSettings->recieve->isEmpty()){
+			MessagePkg::Message outgoing;
+			radioSettings->recieve->pop(outgoing);
+			std::string messageSend = outgoing.base;
+			messageSend.append(" " + outgoing.topic);
+			messageSend.append(" " + outgoing.value);
+			ieee802154_send(messageSend.c_str());
+			std::cout << "this happens" << std::endl;
+		}
 
 		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 	}
@@ -228,7 +237,7 @@ int Radio::ieee802154_recv() {
 	return 0;
 }
 
-int Radio::ieee802154_send(){
+int Radio::ieee802154_send(std::string message){
 	int sd;
 	ssize_t len;
 	struct sockaddr_ieee802154 dst;
@@ -262,10 +271,13 @@ int Radio::ieee802154_send(){
 	/* sendto() is used for implicity in this example, bin()/send() would
 	 * be an alternative */
 //	char bufa[] = {0x6a, 0x6f, 0x68, 0x61, 0x6e, 0x20, 0x73, 0x6b, 0x69, 0x63, 0x6b, 0x61, 0x72};
+	if(message.length() > MAX_PACKET_LEN){message.substr(0,MAX_PACKET_LEN);}
 	char bufa[] = "HEEEJJAAAAAAAA";
 
 	std::cout << "sending radio" << std::endl;
-	len = sendto(sd, bufa, strlen(bufa), 0, (struct sockaddr *)&dst, sizeof(dst));
+
+	len = sendto(sd, message.c_str(), message.size(), 0, (struct sockaddr *)&dst, sizeof(dst));
+//	len = sendto(sd, bufa, strlen(bufa), 0, (struct sockaddr *)&dst, sizeof(dst));
 	if (len < 0) {
 		perror("sendto");
 	}

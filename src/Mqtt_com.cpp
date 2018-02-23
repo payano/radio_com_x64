@@ -107,6 +107,15 @@ void Mqtt_com::on_message(const struct mosquitto_message *message)
 	std::cout <<
 			"Topic: " << message->topic << ", payload: " <<
 			reinterpret_cast<char*>(message->payload) << std::endl;
+
+	std::string payload = reinterpret_cast<char*>(message->payload);
+	MessagePkg::Message outgoing;
+	outgoing.base = message->topic;
+	outgoing.topic = payload;
+	outgoing.value = payload;
+
+	settings->send->push(outgoing);
+
 }
 
 void Mqtt_com::unsubscribe(const char *sub){
