@@ -115,11 +115,12 @@ void Mqtt::run()
 			// These are going to MQTT Broker (received from radio)
 			MessagePkg::Message send;
 			mqttSettings->recieve->pop(send);
-			std::string message = send.base + "/" + send.topic;
-			mqtt_com.sendMessage(message.c_str(), send.value.c_str());
+//			std::string message = send.base + "/" + send.topic;
+//			std::string message = send.base;
+			mqtt_com.sendMessage(send.base.c_str(), send.value.c_str());
 
 			std::cout << "WOOT INCOMING MESSAGE, SENDING TO HOME ASSISTANT!!\n";
-			std::cout << "topic: " << message << ", value: " << send.value << std::endl;
+			std::cout << "topic: " << send.base << ", value: " << send.value << std::endl;
 		}
 		if(mqttSettings->send->size() != lastRecvQueueLen){
 			std::cout << "Message size: " << mqttSettings->send->size() << ", is on the way to the radio for transmitting\n";

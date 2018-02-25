@@ -130,7 +130,7 @@ void Radio::runSend(){
 			MessagePkg::Message outgoing;
 			radioSettings->recieve->pop(outgoing);
 			std::string messageSend = outgoing.base;
-			messageSend.append(" " + outgoing.topic);
+//			messageSend.append(" " + outgoing.topic);
 			messageSend.append(" " + outgoing.value);
 			ieee802154_send(messageSend.c_str());
 			std::cout << "this happens" << std::endl;
@@ -217,9 +217,9 @@ int Radio::ieee802154_recv() {
 		auto space = stringMessage.find(" ");
 		message.base = stringMessage.substr(0, space);
 		stringMessage = stringMessage.substr(space+1);
-		space = stringMessage.find(" ");
-		message.topic = stringMessage.substr(0, space);
-		stringMessage = stringMessage.substr(space+1);
+//		space = stringMessage.find(" ");
+//		message.topic = stringMessage.substr(0, space);
+//		stringMessage = stringMessage.substr(space+1);
 		space = stringMessage.find(" ");
 		message.value = stringMessage.substr(0,space);
 
@@ -242,6 +242,8 @@ int Radio::ieee802154_send(std::string message){
 	ssize_t len;
 	struct sockaddr_ieee802154 dst;
 	unsigned char buf[MAX_PACKET_LEN + 1];
+	memset(buf,0,MAX_PACKET_LEN + 1);
+
 	/* IEEE 802.15.4 extended send address, adapt to your setup */
 	uint8_t long_addr[IEEE802154_ADDR_LEN] = {0xd6, 0x55, 0x2c, 0xd6, 0xe4, 0x1c, 0xeb, 0x57};
 
@@ -274,8 +276,11 @@ int Radio::ieee802154_send(std::string message){
 	if(message.length() > MAX_PACKET_LEN){message.substr(0,MAX_PACKET_LEN);}
 	char bufa[] = "HEEEJJAAAAAAAA";
 
+	message.append(" ");
 	std::cout << "sending radio" << std::endl;
-
+	std::cout << "message: " << message.c_str() << std::endl;
+	len = sendto(sd, message.c_str(), message.size(), 0, (struct sockaddr *)&dst, sizeof(dst));
+	len = sendto(sd, message.c_str(), message.size(), 0, (struct sockaddr *)&dst, sizeof(dst));
 	len = sendto(sd, message.c_str(), message.size(), 0, (struct sockaddr *)&dst, sizeof(dst));
 //	len = sendto(sd, bufa, strlen(bufa), 0, (struct sockaddr *)&dst, sizeof(dst));
 	if (len < 0) {
