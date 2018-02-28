@@ -12,7 +12,7 @@
 #include "MessagePkg.h"
 #include "MqttPkg.h"
 #include "Mqtt_com.h"
-//#include "CommonPkg.h"
+#include "CommonPkg.h"
 #include "runInstance.h"
 
 

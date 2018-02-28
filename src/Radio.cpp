@@ -126,14 +126,15 @@ void Radio::runSend(){
 		// Recieved from radio will be sen to mqtt
 //		ieee802154_recv();
 
-		if(!radioSettings->recieve->isEmpty()){
+		while(!radioSettings->recieve->isEmpty()){
 			MessagePkg::Message outgoing;
 			radioSettings->recieve->pop(outgoing);
 			std::string messageSend = outgoing.base;
 //			messageSend.append(" " + outgoing.topic);
 			messageSend.append(" " + outgoing.value);
 			ieee802154_send(messageSend.c_str());
-			std::cout << "this happens" << std::endl;
+			std::cout << ">> this happens" << std::endl;
+//			std::this_thread::sleep_for(std::chrono::milliseconds(50));
 		}
 
 		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
@@ -207,9 +208,9 @@ int Radio::ieee802154_recv() {
 		}
 		buf[ret] = '\0';
 #if EXTENDED
-		printf("Received (from %s): %s\n", dst.addr.hwaddr, buf);
+		printf("<< Received (from %s): %s\n", dst.addr.hwaddr, buf);
 #else
-		printf("Received (from %x): %s\n", dst.addr.short_addr, buf);
+		printf("<< Received (from %x): %s\n", dst.addr.short_addr, buf);
 #endif
 		MessagePkg::Message message;
 		std::string stringMessage(reinterpret_cast<char*>(buf));
@@ -223,9 +224,9 @@ int Radio::ieee802154_recv() {
 		space = stringMessage.find(" ");
 		message.value = stringMessage.substr(0,space);
 
-		std::cout << "base: " << message.base << std::endl;
-		std::cout << "topic: " << message.topic << std::endl;
-		std::cout << "value: " << message.value << std::endl;
+		std::cout << "<< base: " << message.base << std::endl;
+		std::cout << "<< topic: " << message.topic << std::endl;
+		std::cout << "<< value: " << message.value << std::endl;
 		radioSettings->send->push(message);
 
 
@@ -276,13 +277,9 @@ int Radio::ieee802154_send(std::string message){
 	if(message.length() > MAX_PACKET_LEN){message.substr(0,MAX_PACKET_LEN);}
 	char bufa[] = "HEEEJJAAAAAAAA";
 
-	message.append(" ");
-	std::cout << "sending radio" << std::endl;
-	std::cout << "message: " << message.c_str() << std::endl;
+	std::cout << ">> sending radio" << std::endl;
+	std::cout << ">> message: " << message.c_str() << std::endl;
 	len = sendto(sd, message.c_str(), message.size(), 0, (struct sockaddr *)&dst, sizeof(dst));
-	len = sendto(sd, message.c_str(), message.size(), 0, (struct sockaddr *)&dst, sizeof(dst));
-	len = sendto(sd, message.c_str(), message.size(), 0, (struct sockaddr *)&dst, sizeof(dst));
-//	len = sendto(sd, bufa, strlen(bufa), 0, (struct sockaddr *)&dst, sizeof(dst));
 	if (len < 0) {
 		perror("sendto");
 	}
