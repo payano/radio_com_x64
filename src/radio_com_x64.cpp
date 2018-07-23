@@ -78,7 +78,7 @@ int main(int argc, char **argv) {
 	lamp.topics["brightness"].set = "get"; // Home assistant will get and we will send it.
 	mqttSettings->accessories.emplace_back(lamp);
 
-	mqttSettings->host = "192.168.0.100";
+	mqttSettings->host = "127.0.0.1";
 	mqttSettings->id = "0";
 	mqttSettings->port = 1883;
 	mqttSettings->keepalive = 60;
@@ -88,10 +88,10 @@ int main(int argc, char **argv) {
 //	std::signal(SIGTERM, signal_handler);
 
 	mqtt::Mqtt mqtt(mqttSettings);
-//	radio::Radio radio(radioSettings);
+	radio::Radio radio(radioSettings);
 
 	mqtt.start();
-//	radio.start();
+	radio.start();
 
 	std::cout << "Starting application.\n";
 	std::promise<void> p;

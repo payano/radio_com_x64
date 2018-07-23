@@ -81,11 +81,13 @@ void Mqtt::run()
 	unsigned int lastRecvQueueLen = 0u;
 	__time_t nextTimeout = 0u;
 
+	bool tmpToggle = false;
+
 	bool subscribed = false;
 	while(runningStatus == Status::Runnning)
 	{
 		if(mqttSettings->status == common::Status::Connected && subscribed == false){
-			handleSubscriptions(subscribed);
+			handleSubscriptions(true, subscribed);
 
 		}
 
@@ -113,11 +115,12 @@ void Mqtt::run()
 			// These are going to MQTT Broker (received from radio)
 			MessagePkg::Message send;
 			mqttSettings->recieve->pop(send);
-			std::string message = send.base + send.topic;
-			mqtt_com.sendMessage(message.c_str(), send.value.c_str());
+//			std::string message = send.base + "/" + send.topic;
+//			std::string message = send.base;
+			mqtt_com.sendMessage(send.base.c_str(), send.value.c_str());
 
 			std::cout << "WOOT INCOMING MESSAGE, SENDING TO HOME ASSISTANT!!\n";
-			std::cout << "topic: " << message << ", value: " << send.value << std::endl;
+			std::cout << "topic: " << send.base << ", value: " << send.value << std::endl;
 		}
 		if(mqttSettings->send->size() != lastRecvQueueLen){
 			std::cout << "Message size: " << mqttSettings->send->size() << ", is on the way to the radio for transmitting\n";
@@ -129,7 +132,7 @@ void Mqtt::run()
 	std::cout << "Closing thread Mqtt.\n";
 
 	// Remove all connections to Mqtt broker server...
-	handleSubscriptions(false);
+	handleSubscriptions(false,subscribed);
 	mqtt_com.disconnect();
 	// Reset all statuses in settings.
 

@@ -1,5 +1,5 @@
 #include "af_ieee802154.h"
-
+#include <string.h>
 
 int ieee802154_recv() {
 	int ret, sd;
@@ -65,6 +65,7 @@ int ieee802154_send(){
 	ssize_t len;
 	struct sockaddr_ieee802154 dst;
 	unsigned char buf[MAX_PACKET_LEN + 1];
+	memset(buf,0,MAX_PACKET_LEN + 1);
 	/* IEEE 802.15.4 extended send address, adapt to your setup */
 	uint8_t long_addr[IEEE802154_ADDR_LEN] = {0xd6, 0x55, 0x2c, 0xd6, 0xe4, 0x1c, 0xeb, 0x57};
 
