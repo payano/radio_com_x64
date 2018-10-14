@@ -133,11 +133,15 @@ void Radio::runSend(){
 //			messageSend.append(" " + outgoing.topic);
 			messageSend.append(" " + outgoing.value);
 			ieee802154_send(messageSend.c_str());
+			std::this_thread::sleep_for(std::chrono::milliseconds(50));
+			ieee802154_send(messageSend.c_str());
+			std::this_thread::sleep_for(std::chrono::milliseconds(50));
+			ieee802154_send(messageSend.c_str());
+			std::this_thread::sleep_for(std::chrono::milliseconds(50));
 			std::cout << ">> this happens" << std::endl;
-//			std::this_thread::sleep_for(std::chrono::milliseconds(50));
 		}
 
-		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+		std::this_thread::sleep_for(std::chrono::milliseconds(50));
 	}
 
 	// Remove all connections to Mqtt broker server...
@@ -223,6 +227,7 @@ int Radio::ieee802154_recv() {
 //		stringMessage = stringMessage.substr(space+1);
 		space = stringMessage.find(" ");
 		message.value = stringMessage.substr(0,space);
+		std::this_thread::sleep_for(std::chrono::milliseconds(80));
 
 		std::cout << "<< base: " << message.base << std::endl;
 		std::cout << "<< topic: " << message.topic << std::endl;
